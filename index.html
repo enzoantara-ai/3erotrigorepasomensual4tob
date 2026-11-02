@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Práctica para el examen · Ángulo doble y triple</title>
+<style>
+:root{
+  --paper:#F6F9FC; --grid:#DCE6F0; --card:#FFFFFF; --text:#1F2933; --muted:#566574;
+  --ink:#1D3FA6; --ink-text:#FFFFFF; --line:#C9D6E3; --margin:#E5707E;
+  --ok:#157347; --okbg:#E3F4EA; --bad:#B42318; --badbg:#FCE8E6; --mark:#FFE27A;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#10151D; --grid:#1B2531; --card:#18202B; --text:#E6EBF2; --muted:#9AA8B8;
+    --ink:#8FB0FF; --ink-text:#0E1522; --line:#2E3B4B; --margin:#B4505D;
+    --ok:#5CD08F; --okbg:#10291E; --bad:#FF8A80; --badbg:#341A1A; --mark:#5C4B00;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--text); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+  font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+.wrap{max-width:720px; margin:0 auto; padding:20px 16px 56px}
+h1,h2,h3,.math{font-family:Cambria,"Palatino Linotype",Georgia,serif}
+h1{font-size:2rem; line-height:1.15; margin:8px 0 6px; color:var(--ink)}
+h2{font-size:1.35rem; margin:0 0 8px}
+h3{font-size:1.05rem; margin:18px 0 6px}
+p{margin:0 0 10px}
+.lead{color:var(--muted); font-size:1.02rem}
+.hide{display:none !important}
+
+.sheet{
+  position:relative; background:var(--card); border:1px solid var(--line); border-radius:6px;
+  padding:20px 20px 20px 62px; margin:16px 0;
+  background-image:repeating-linear-gradient(transparent 0 31px,var(--grid) 31px 32px);
+}
+.sheet::before{content:""; position:absolute; top:0; bottom:0; left:44px; width:2px; background:var(--margin)}
+.sheet.plain{background-image:none}
+@media (max-width:520px){ .sheet{padding:16px 14px 16px 38px} .sheet::before{left:26px} h1{font-size:1.65rem} }
+
+.steps{margin:6px 0 0; padding-left:1.2em}
+.steps li{margin:0 0 8px; padding-left:4px}
+.mark{background:linear-gradient(transparent 55%,var(--mark) 55%)}
+.note{border-left:4px solid var(--ink); padding:6px 12px; margin:14px 0 0; background:color-mix(in srgb,var(--ink) 8%,transparent)}
+
+button{font:inherit; cursor:pointer}
+.btn{
+  display:inline-block; min-height:46px; padding:10px 20px; border-radius:8px; border:2px solid var(--ink);
+  background:var(--ink); color:var(--ink-text); font-weight:700;
+}
+.btn.ghost{background:transparent; color:var(--ink)}
+.btn:hover{filter:brightness(1.08)}
+:focus-visible{outline:3px solid var(--mark); outline-offset:2px; box-shadow:0 0 0 5px var(--ink)}
+.row{display:flex; flex-wrap:wrap; gap:10px; margin-top:14px}
+.best{color:var(--muted); font-size:.95rem; margin-top:12px}
+
+.hud{display:flex; justify-content:space-between; gap:10px; font-size:.95rem; color:var(--muted); margin-top:14px}
+.bar{height:8px; background:var(--line); border-radius:8px; overflow:hidden; margin-top:6px}
+.bar > i{display:block; height:100%; width:0; background:var(--ink); transition:width .3s}
+.tags{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px}
+.tag{font-size:.82rem; padding:2px 10px; border:1px solid var(--line); border-radius:99px; background:var(--card); color:var(--muted)}
+.tag.lvl{color:var(--ink); border-color:var(--ink)}
+.q{font-size:1.28rem; line-height:1.5; margin:4px 0 14px}
+.work{margin:0 0 14px; color:var(--muted)}
+.opts{display:grid; gap:10px; margin-top:6px}
+.opt{
+  display:flex; align-items:center; gap:12px; text-align:left; width:100%; min-height:50px; padding:10px 14px;
+  background:var(--card); color:var(--text); border:2px solid var(--line); border-radius:8px; font-size:1.12rem;
+}
+.opt b{flex:none; width:28px; height:28px; display:grid; place-items:center; border-radius:50%; background:var(--line); font-size:.9rem}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.ok{background:var(--okbg); border-color:var(--ok)}
+.opt.bad{background:var(--badbg); border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.fb{margin-top:14px; padding:12px 14px; border-radius:8px; border:2px solid var(--line); background:var(--card)}
+.fb.ok{border-color:var(--ok); background:var(--okbg)}
+.fb.bad{border-color:var(--bad); background:var(--badbg)}
+.fb strong.ok{color:var(--ok)} .fb strong.bad{color:var(--bad)}
+
+.score{font-size:2.6rem; font-weight:700; color:var(--ink); line-height:1.1; margin:4px 0}
+.ans{margin:0 0 14px; padding-bottom:14px; border-bottom:1px dashed var(--line)}
+.ans:last-child{border-bottom:0; margin-bottom:0}
+.ans .res{font-size:.88rem; font-weight:700}
+.ans .res.ok{color:var(--ok)} .ans .res.bad{color:var(--bad)} .ans .res.na{color:var(--muted)}
+.ans .a{font-weight:700}
+sup{font-size:.7em; line-height:0}
+
+@media print{
+  body{background:#fff; color:#000}
+  .no-print,.hud,#inicio,#juego,.row{display:none !important}
+  .sheet{border:1px solid #999; background:#fff}
+}
+@media (prefers-reduced-motion: reduce){ .bar > i{transition:none} }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <!-- INICIO -->
+  <section id="inicio">
+    <h1>Práctica para el examen</h1>
+    <p class="lead">10 ejercicios del examen sobre el ángulo doble y el ángulo triple. Juégalo todas las veces que quieras: el orden de las preguntas y de las alternativas cambia en cada intento.</p>
+
+    <div class="sheet">
+      <h2>Dinámica: resuelve primero, elige después</h2>
+      <ol class="steps">
+        <li><b>Prepara tu cuaderno y lápiz.</b> Cada pregunta aparece <span class="mark">sin alternativas</span>.</li>
+        <li><b>Resuélvela completa en tu cuaderno,</b> con procedimiento, como en el examen. No uses calculadora.</li>
+        <li>Cuando termines, presiona <b>«Ya lo resolví»</b>. Aparecen cuatro alternativas: elige la que coincide con tu resultado. Si tu resultado no está, vuelve a revisar tu procedimiento.</li>
+        <li><b>Lee la explicación, también cuando aciertes,</b> y compárala con tu solución. Ahí se aprende cómo se resuelve más rápido.</li>
+      </ol>
+      <div class="note">
+        <b>Puntaje:</b> cada acierto vale 10 puntos. La meta es llegar a 100. Al final verás todos los ejercicios con su respuesta y su solución.
+      </div>
+      <h3>En parejas (opcional)</h3>
+      <p>Uno resuelve en su cuaderno y el otro verifica cada paso; después cambian de rol. Anoten el puntaje de cada ronda: gana la pareja que llegue primero a 100 o que suba más su puntaje entre un intento y el siguiente.</p>
+    </div>
+
+    <div class="row"><button class="btn" id="btnEmpezar" type="button">Empezar</button></div>
+    <p class="best" id="mejorInicio"></p>
+  </section>
+
+  <!-- JUEGO -->
+  <section id="juego" class="hide">
+    <div class="hud" aria-live="polite">
+      <span id="num"></span><span id="pts"></span>
+    </div>
+    <div class="bar" aria-hidden="true"><i id="prog"></i></div>
+
+    <div class="sheet">
+      <div class="tags"><span class="tag" id="tagFicha"></span><span class="tag lvl" id="tagNivel"></span></div>
+      <p class="q math" id="preg"></p>
+
+      <div id="paso1">
+        <p class="work">Resuélvelo en tu cuaderno. Cuando tengas tu resultado, presiona el botón.</p>
+        <button class="btn" id="btnVer" type="button">Ya lo resolví: ver alternativas</button>
+      </div>
+
+      <div id="paso2" class="hide">
+        <div class="opts" id="opts" role="group" aria-label="Alternativas"></div>
+        <div class="fb hide" id="fb" aria-live="polite"></div>
+        <div class="row"><button class="btn hide" id="btnSig" type="button">Siguiente</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="fin" class="hide">
+    <div class="sheet plain">
+      <p class="lead" id="medalla" style="margin:0"></p>
+      <div class="score"><span id="resPts">0</span> / 100</div>
+      <h2 id="resTit"></h2>
+      <p id="resTxt"></p>
+      <p class="best" id="mejorFin"></p>
+      <div class="row no-print">
+        <button class="btn" id="btnOtra" type="button">Jugar otra vez</button>
+        <button class="btn ghost" id="btnImp" type="button">Imprimir respuestas</button>
+      </div>
+    </div>
+
+    <h2>Ejercicios con su respuesta</h2>
+    <p class="lead">Compara cada solución con tu procedimiento. La marca indica cómo te fue en este intento.</p>
+    <div class="sheet plain" id="listado"></div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var FICHAS = {S1:"Ángulo doble I", S2:"Ángulo doble II", S3:"Ángulo triple"};
+
+  // La primera alternativa de cada pregunta (o[0]) es la correcta; se mezclan al jugar.
+  var BANCO = [
+    { f:"S1", n:"Fácil",
+      q:"Si sen θ = 3/5 (θ agudo), ¿cuánto vale sen 2θ?",
+      o:["24/25","6/5","12/25","7/25"],
+      e:"Si sen θ = 3/5, entonces cos θ = 4/5 (triángulo 3-4-5). Luego sen 2θ = 2·sen θ·cos θ = 2·(3/5)·(4/5) = 24/25. Ojo: sen 2θ no es 2sen θ." },
+    { f:"S1", n:"Fácil",
+      q:"Expresa cos 16° usando solamente sen 8°.",
+      o:["1 − 2sen<sup>2</sup>8°","2sen<sup>2</sup>8° − 1","1 − 2sen<sup>2</sup>16°","2sen 8°·cos 8°"],
+      e:"Se usa cos 2θ = 1 − 2sen<sup>2</sup>θ con θ = 8°, y resulta cos 16° = 1 − 2sen<sup>2</sup>8°. Con el signo cambiado saldría −cos 16°." },
+    { f:"S1", n:"Fácil",
+      q:"¿A qué es igual 2sen<sup>2</sup>20°? Escríbelo en términos de cos 40°.",
+      o:["1 − cos 40°","1 + cos 40°","1 − cos 20°","2cos<sup>2</sup>20°"],
+      e:"Identidad de degradación: 2sen<sup>2</sup>θ = 1 − cos 2θ. Con θ = 20° resulta 1 − cos 40°." },
+    { f:"S2", n:"Fácil",
+      q:"Sin calculadora: cot 20° + tan 20° es igual a…",
+      o:["2csc 40°","2cot 40°","csc 40°","cot 40°"],
+      e:"cot θ + tan θ = 2csc 2θ. Con θ = 20° resulta 2csc 40°. (Se comprueba así: cot θ + tan θ = 1/(sen θ·cos θ) = 2/sen 2θ.)" },
+    { f:"S2", n:"Fácil",
+      q:"Si 2cot 2θ + tan θ = 4, ¿cuánto vale tan θ?",
+      o:["1/4","1/2","2","4"],
+      e:"Como 2cot 2θ = cot θ − tan θ, la ecuación queda cot θ − tan θ + tan θ = cot θ = 4. Entonces tan θ = 1/4." },
+    { f:"S3", n:"Fácil",
+      q:"Si sen x = 1/3, ¿cuánto vale sen 3x?",
+      o:["23/27","1","31/27","−23/27"],
+      e:"sen 3x = 3sen x − 4sen<sup>3</sup>x = 3·(1/3) − 4·(1/27) = 1 − 4/27 = 23/27. Responder 1 es olvidar el término −4sen<sup>3</sup>x." },
+    { f:"S3", n:"Fácil",
+      q:"Calcula: 4cos<sup>3</sup>10° − 3cos 10°",
+      o:["√3/2","1/2","√2/2","1"],
+      e:"Es la forma de cos 3θ = 4cos<sup>3</sup>θ − 3cos θ con θ = 10°. Entonces vale cos 30° = √3/2." },
+    { f:"S1", n:"Intermedia",
+      q:"Si sen x − cos x = 1/√7, calcula sen 2x. <small>(Sugerencia: eleva al cuadrado.)</small>",
+      o:["6/7","−6/7","3/7","2/7"],
+      e:"(sen x − cos x)<sup>2</sup> = sen<sup>2</sup>x + cos<sup>2</sup>x − 2sen x·cos x = 1 − sen 2x = 1/7. Entonces sen 2x = 1 − 1/7 = 6/7." },
+    { f:"S2", n:"Intermedia",
+      q:"Reduce: csc θ − csc 2θ − cot 2θ",
+      o:["tan(θ/2)","cot(θ/2)","tan θ","cot θ"],
+      e:"Agrupa así: csc θ − (csc 2θ + cot 2θ). Como csc 2θ + cot 2θ = cot θ, queda csc θ − cot θ = tan(θ/2)." },
+    { f:"S3", n:"Reto",
+      q:"Si sen x − cos x = 1/2, calcula sen 6x.",
+      o:["9/16","3/4","11/16","5/8"],
+      e:"Al cuadrado: 1 − sen 2x = 1/4, luego sen 2x = 3/4. Entonces sen 6x = sen 3(2x) = 3·(3/4) − 4·(3/4)<sup>3</sup> = 9/4 − 27/16 = 9/16." }
+  ];
+
+  var $ = function(id){ return document.getElementById(id); };
+  var LETRAS = ["A","B","C","D"];
+  var KEY = "trigo_reto_mejor_ex";
+
+  function barajar(a){
+    a = a.slice();
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
+  function leerMejor(){ try{ return parseInt(localStorage.getItem(KEY)||"0",10)||0; }catch(e){ return 0; } }
+  function guardarMejor(v){ try{ localStorage.setItem(KEY,String(v)); }catch(e){} }
+  function pantalla(id){
+    ["inicio","juego","fin"].forEach(function(s){ $(s).classList.toggle("hide", s!==id); });
+    window.scrollTo(0,0);
+  }
+  function textoMejor(){
+    var m = leerMejor();
+    return m>0 ? "Tu mejor puntaje en este equipo: "+m+" / 100" : "";
+  }
+
+  var orden, idx, pts, respondida, opciones, resultados;
+
+  function empezar(){
+    orden = barajar(BANCO.map(function(_,i){ return i; }));
+    idx = 0; pts = 0; resultados = {};
+    pantalla("juego");
+    mostrar();
+  }
+
+  function mostrar(){
+    respondida = false;
+    var p = BANCO[orden[idx]];
+    $("num").textContent = "Pregunta "+(idx+1)+" de "+BANCO.length;
+    $("pts").textContent = pts+" puntos";
+    $("prog").style.width = (idx/BANCO.length*100)+"%";
+    $("tagFicha").textContent = FICHAS[p.f];
+    $("tagNivel").textContent = p.n;
+    $("preg").innerHTML = p.q;
+    $("paso1").classList.remove("hide");
+    $("paso2").classList.add("hide");
+    $("fb").className = "fb hide";
+    $("btnSig").classList.add("hide");
+    $("btnVer").focus();
+  }
+
+  function verAlternativas(){
+    var p = BANCO[orden[idx]];
+    opciones = barajar(p.o.map(function(t,i){ return {t:t, ok:i===0}; }));
+    var box = $("opts"); box.innerHTML = "";
+    opciones.forEach(function(op,i){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "opt math";
+      b.innerHTML = "<b>"+LETRAS[i]+"</b><span>"+op.t+"</span>";
+      b.addEventListener("click", function(){ elegir(i); });
+      box.appendChild(b);
+    });
+    $("paso1").classList.add("hide");
+    $("paso2").classList.remove("hide");
+    box.firstChild.focus();
+  }
+
+  function elegir(i){
+    if(respondida) return;
+    respondida = true;
+    var qi = orden[idx], p = BANCO[qi];
+    var btns = $("opts").children;
+    for(var k=0;k<btns.length;k++){
+      btns[k].disabled = true;
+      if(opciones[k].ok) btns[k].classList.add("ok");
+    }
+    var fb = $("fb");
+    if(opciones[i].ok){
+      pts += 10; resultados[qi] = "ok";
+      fb.className = "fb ok";
+      fb.innerHTML = "<strong class=\"ok\">¡Correcto! +10 puntos.</strong><br>"+p.e;
+    }else{
+      btns[i].classList.add("bad"); resultados[qi] = "bad";
+      fb.className = "fb bad";
+      fb.innerHTML = "<strong class=\"bad\">Todavía no.</strong> Así se resuelve:<br>"+p.e;
+    }
+    $("pts").textContent = pts+" puntos";
+    $("prog").style.width = ((idx+1)/BANCO.length*100)+"%";
+    var sig = $("btnSig");
+    sig.textContent = idx===BANCO.length-1 ? "Ver resultado y respuestas" : "Siguiente";
+    sig.classList.remove("hide");
+    sig.focus();
+  }
+
+  function siguiente(){
+    idx++;
+    if(idx>=BANCO.length) terminar(); else mostrar();
+  }
+
+  function terminar(){
+    var mejor = leerMejor();
+    var record = pts>mejor;
+    if(record) guardarMejor(pts);
+    $("resPts").textContent = pts;
+    var m,t,x;
+    if(pts===100){ m="Puntaje perfecto"; t="¡Estás listo para el examen!"; x="Resolviste los 10 ejercicios sin fallar. Reta a un compañero o a tu pareja a igualarte."; }
+    else if(pts>=70){ m="Muy bien"; t="Vas muy bien"; x="Revisa en la lista de abajo los ejercicios que fallaste y vuelve a jugar para llegar a 100."; }
+    else if(pts>=40){ m="Buen avance"; t="Vas por buen camino"; x="Repasa las identidades de tu ficha, lee las soluciones de abajo y juega otra vez."; }
+    else { m="A seguir practicando"; t="Todavía se puede mejorar"; x="Lee con calma las soluciones de abajo, vuelve a resolverlas en tu cuaderno y juega otra vez."; }
+    $("medalla").textContent = m;
+    $("resTit").textContent = t;
+    $("resTxt").textContent = x;
+    $("mejorFin").textContent = record && pts>0 ? "Nuevo récord en este equipo." : textoMejor();
+    armarListado();
+    pantalla("fin");
+  }
+
+  function armarListado(){
+    var cont = $("listado"); cont.innerHTML = "";
+    BANCO.forEach(function(p,i){
+      var r = resultados[i];
+      var estado = r==="ok" ? ["ok","Acertaste en este intento"] : r==="bad" ? ["bad","Falló en este intento"] : ["na",""];
+      var d = document.createElement("div"); d.className = "ans";
+      d.innerHTML =
+        "<div class=\"tags\"><span class=\"tag\">"+FICHAS[p.f]+"</span><span class=\"tag lvl\">"+p.n+"</span></div>"+
+        "<p class=\"math\"><b>"+(i+1)+".</b> "+p.q+"</p>"+
+        "<p class=\"a math\">Respuesta: "+p.o[0]+"</p>"+
+        "<p>"+p.e+"</p>"+
+        (estado[1] ? "<p class=\"res "+estado[0]+"\">"+estado[1]+"</p>" : "");
+      cont.appendChild(d);
+    });
+  }
+
+  $("btnEmpezar").addEventListener("click", empezar);
+  $("btnVer").addEventListener("click", verAlternativas);
+  $("btnSig").addEventListener("click", siguiente);
+  $("btnOtra").addEventListener("click", empezar);
+  $("btnImp").addEventListener("click", function(){ window.print(); });
+
+  // Atajos de teclado: 1-4 eligen la alternativa
+  document.addEventListener("keydown", function(e){
+    if($("juego").classList.contains("hide") || $("paso2").classList.contains("hide") || respondida) return;
+    var k = "1234".indexOf(e.key);
+    if(k>-1 && opciones && opciones[k]) elegir(k);
+  });
+
+  $("mejorInicio").textContent = textoMejor();
+})();
+</script>
+</body>
+</html>
